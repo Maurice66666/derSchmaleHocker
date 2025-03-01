@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      background: #e0e0e0; /* heller Grauton */
       margin: 0;
       padding: 0;
       display: flex;
@@ -15,37 +15,39 @@
       height: 100vh;
     }
     .container {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
       text-align: center;
+      width: 95%;
+      max-width: 480px;
+    }
+    h1 {
+      color: #222222;
+      margin-bottom: 15px;
+      font-size: 2em;
+    }
+    p {
+      color: #444444;
+      margin-bottom: 25px;
+      font-size: 1.2em;
+    }
+    button {
+      font-size: 1.5em;
+      padding: 20px 40px;
+      margin: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #333333; /* dunkler Grauton */
+      color: #ffffff;
+      transition: background 0.3s;
       width: 90%;
       max-width: 400px;
     }
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #555;
-      margin-bottom: 20px;
-    }
-    button {
-      font-size: 1.2em;
-      padding: 15px 30px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #007BFF;
-      color: #fff;
-      transition: background 0.3s;
-      width: 80%;
-      max-width: 300px;
-    }
     button:hover {
-      background: #0056b3;
+      background: #555555;
     }
   </style>
 </head>
@@ -68,7 +70,7 @@
     const SERVICE_UUID = "12345678-1234-1234-1234-1234567890ab";
     const CHARACTERISTIC_UUID = "87654321-4321-4321-4321-ba0987654321";
 
-    let leuchteCharacteristic;  // Hier wird das BLE-Characteristic-Objekt gespeichert
+    let leuchteCharacteristic;  // Speichert das BLE-Characteristic-Objekt
 
     async function connectBLE() {
       try {
