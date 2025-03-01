@@ -2,71 +2,82 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Meine Lampe</title>
+  <title>Lampensteuerung</title>
 </head>
 <body>
-  <h1>Lampe via Web Bluetooth steuern</h1>
+  <h1>Lampensteuerung</h1>
   <p>
-    1. Auf <strong>Verbinden</strong> klicken<br>
-    2. Im Bluetooth-Dialog <strong>MeineLampe</strong> auswählen<br>
-    3. Dann Lampe an/aus schalten!
+    Klicke zuerst auf <b>Verbinden</b>, um die Verbindung herzustellen.<br>
+    Danach kannst du <b>Lampe An</b>, <b>Lampe Aus</b>, <b>Warmlicht</b> und <b>Kaltlicht</b> steuern.
   </p>
-
+  
   <button onclick="connectBLE()">Verbinden</button>
-  <button onclick="lampOn()">Lampe AN</button>
-  <button onclick="lampOff()">Lampe AUS</button>
-
+  <button onclick="lampOn()">Lampe An</button>
+  <button onclick="lampOff()">Lampe Aus</button>
+  <button onclick="warmlicht()">Warmlicht</button>
+  <button onclick="kaltlicht()">Kaltlicht</button>
+  
   <script>
-    // UUIDs wie im ESP32-Code!
+    // UUIDs müssen exakt mit denen im ESP32-Code übereinstimmen!
     const SERVICE_UUID = "12345678-1234-1234-1234-1234567890ab";
     const CHARACTERISTIC_UUID = "87654321-4321-4321-4321-ba0987654321";
 
-    let myCharacteristic; // Hier speichern wir später unser BLE-Objekt
+    let lampCharacteristic;  // Speichert das BLE-Characteristic-Objekt
 
-    // 1) Verbindung aufbauen (Button "Verbinden")
+    // Verbindung herstellen
     async function connectBLE() {
       try {
-        // Dialog öffnen, nach BLE-Geräten mit passendem Service scannen
         const device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [SERVICE_UUID] }]
         });
-
-        // GATT-Verbindung aufbauen
         const server = await device.gatt.connect();
-
-        // Primary Service holen
         const service = await server.getPrimaryService(SERVICE_UUID);
-
-        // Characteristic holen
-        myCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-
-        alert("Verbindung erfolgreich!");
+        lampCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+        alert("Verbunden mit der Lampe!");
       } catch (error) {
         console.error(error);
         alert("Fehler beim Verbinden: " + error);
       }
     }
 
-    // 2) Lampe AN (Button "Lampe AN")
+    // Lampe An: Schickt Byte 1 (Standard: Kaltlicht an)
     async function lampOn() {
-      if (!myCharacteristic) {
-        alert("Bitte zuerst auf 'Verbinden' klicken!");
+      if (!lampCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      const data = new Uint8Array([1]);
-      await myCharacteristic.writeValue(data);
-      alert("Lampe eingeschaltet!");
+      await lampCharacteristic.writeValue(new Uint8Array([1]));
+      alert("Lampe An (Kaltlicht) gesendet.");
     }
 
-    // 3) Lampe AUS (Button "Lampe AUS")
+    // Lampe Aus: Schickt Byte 0
     async function lampOff() {
-      if (!myCharacteristic) {
-        alert("Bitte zuerst auf 'Verbinden' klicken!");
+      if (!lampCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      const data = new Uint8Array([0]);
-      await myCharacteristic.writeValue(data);
-      alert("Lampe ausgeschaltet!");
+      await lampCharacteristic.writeValue(new Uint8Array([0]));
+      alert("Lampe Aus gesendet.");
+    }
+
+    // Warmlicht: Schickt Byte 2
+    async function warmlicht() {
+      if (!lampCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken.");
+        return;
+      }
+      await lampCharacteristic.writeValue(new Uint8Array([2]));
+      alert("Warmlicht gesendet.");
+    }
+
+    // Kaltlicht: Schickt Byte 3
+    async function kaltlicht() {
+      if (!lampCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken.");
+        return;
+      }
+      await lampCharacteristic.writeValue(new Uint8Array([3]));
+      alert("Kaltlicht gesendet.");
     }
   </script>
 </body>
