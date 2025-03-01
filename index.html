@@ -2,29 +2,74 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Lampensteuerung</title>
+  <title>Leuchtensteuerung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 15px 30px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #007BFF;
+      color: #fff;
+      transition: background 0.3s;
+      width: 80%;
+      max-width: 300px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <h1>Lampensteuerung</h1>
-  <p>
-    Klicke zuerst auf <b>Verbinden</b>, um die Verbindung herzustellen.<br>
-    Danach kannst du <b>Lampe An</b>, <b>Lampe Aus</b>, <b>Warmlicht</b> und <b>Kaltlicht</b> steuern.
-  </p>
-  
-  <button onclick="connectBLE()">Verbinden</button>
-  <button onclick="lampOn()">Lampe An</button>
-  <button onclick="lampOff()">Lampe Aus</button>
-  <button onclick="warmlicht()">Warmlicht</button>
-  <button onclick="kaltlicht()">Kaltlicht</button>
+  <div class="container">
+    <h1>Leuchtensteuerung</h1>
+    <p>
+      Drücke zuerst auf <strong>Verbinden</strong>, um die Verbindung herzustellen.<br>
+      Dann kannst Du <strong>Leuchte An</strong>, <strong>Leuchte Aus</strong>, <strong>Warmlicht</strong> und <strong>Kaltlicht</strong> steuern.
+    </p>
+    <button onclick="connectBLE()">Verbinden</button>
+    <button onclick="leuchteOn()">Leuchte An</button>
+    <button onclick="leuchteOff()">Leuchte Aus</button>
+    <button onclick="warmlicht()">Warmlicht</button>
+    <button onclick="kaltlicht()">Kaltlicht</button>
+  </div>
   
   <script>
-    // UUIDs müssen exakt mit denen im ESP32-Code übereinstimmen!
+    // UUIDs – müssen exakt mit dem ESP32-Code übereinstimmen!
     const SERVICE_UUID = "12345678-1234-1234-1234-1234567890ab";
     const CHARACTERISTIC_UUID = "87654321-4321-4321-4321-ba0987654321";
 
-    let lampCharacteristic;  // Speichert das BLE-Characteristic-Objekt
+    let leuchteCharacteristic;  // Hier wird das BLE-Characteristic-Objekt gespeichert
 
-    // Verbindung herstellen
     async function connectBLE() {
       try {
         const device = await navigator.bluetooth.requestDevice({
@@ -32,51 +77,51 @@
         });
         const server = await device.gatt.connect();
         const service = await server.getPrimaryService(SERVICE_UUID);
-        lampCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-        alert("Verbunden mit der Lampe!");
+        leuchteCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+        alert("Verbunden mit der Leuchte!");
       } catch (error) {
         console.error(error);
         alert("Fehler beim Verbinden: " + error);
       }
     }
 
-    // Lampe An: Schickt Byte 1 (Standard: Kaltlicht an)
-    async function lampOn() {
-      if (!lampCharacteristic) {
+    // Leuchte An: sendet Byte 1 (Standard: Kaltlicht)
+    async function leuchteOn() {
+      if (!leuchteCharacteristic) {
         alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      await lampCharacteristic.writeValue(new Uint8Array([1]));
-      alert("Lampe An (Kaltlicht) gesendet.");
+      await leuchteCharacteristic.writeValue(new Uint8Array([1]));
+      alert("Leuchte An (Kaltlicht) gesendet.");
     }
 
-    // Lampe Aus: Schickt Byte 0
-    async function lampOff() {
-      if (!lampCharacteristic) {
+    // Leuchte Aus: sendet Byte 0
+    async function leuchteOff() {
+      if (!leuchteCharacteristic) {
         alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      await lampCharacteristic.writeValue(new Uint8Array([0]));
-      alert("Lampe Aus gesendet.");
+      await leuchteCharacteristic.writeValue(new Uint8Array([0]));
+      alert("Leuchte Aus gesendet.");
     }
 
-    // Warmlicht: Schickt Byte 2
+    // Warmlicht: sendet Byte 2
     async function warmlicht() {
-      if (!lampCharacteristic) {
+      if (!leuchteCharacteristic) {
         alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      await lampCharacteristic.writeValue(new Uint8Array([2]));
+      await leuchteCharacteristic.writeValue(new Uint8Array([2]));
       alert("Warmlicht gesendet.");
     }
 
-    // Kaltlicht: Schickt Byte 3
+    // Kaltlicht: sendet Byte 3
     async function kaltlicht() {
-      if (!lampCharacteristic) {
+      if (!leuchteCharacteristic) {
         alert("Bitte zuerst auf 'Verbinden' klicken.");
         return;
       }
-      await lampCharacteristic.writeValue(new Uint8Array([3]));
+      await leuchteCharacteristic.writeValue(new Uint8Array([3]));
       alert("Kaltlicht gesendet.");
     }
   </script>
