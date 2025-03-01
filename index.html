@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Meine Lampe</title>
+</head>
+<body>
+  <h1>Lampe via Web Bluetooth steuern</h1>
+  <p>
+    1. Auf <strong>Verbinden</strong> klicken<br>
+    2. Im Bluetooth-Dialog <strong>MeineLampe</strong> auswählen<br>
+    3. Dann Lampe an/aus schalten!
+  </p>
+
+  <button onclick="connectBLE()">Verbinden</button>
+  <button onclick="lampOn()">Lampe AN</button>
+  <button onclick="lampOff()">Lampe AUS</button>
+
+  <script>
+    // UUIDs wie im ESP32-Code!
+    const SERVICE_UUID = "12345678-1234-1234-1234-1234567890ab";
+    const CHARACTERISTIC_UUID = "87654321-4321-4321-4321-ba0987654321";
+
+    let myCharacteristic; // Hier speichern wir später unser BLE-Objekt
+
+    // 1) Verbindung aufbauen (Button "Verbinden")
+    async function connectBLE() {
+      try {
+        // Dialog öffnen, nach BLE-Geräten mit passendem Service scannen
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [SERVICE_UUID] }]
+        });
+
+        // GATT-Verbindung aufbauen
+        const server = await device.gatt.connect();
+
+        // Primary Service holen
+        const service = await server.getPrimaryService(SERVICE_UUID);
+
+        // Characteristic holen
+        myCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+        alert("Verbindung erfolgreich!");
+      } catch (error) {
+        console.error(error);
+        alert("Fehler beim Verbinden: " + error);
+      }
+    }
+
+    // 2) Lampe AN (Button "Lampe AN")
+    async function lampOn() {
+      if (!myCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken!");
+        return;
+      }
+      const data = new Uint8Array([1]);
+      await myCharacteristic.writeValue(data);
+      alert("Lampe eingeschaltet!");
+    }
+
+    // 3) Lampe AUS (Button "Lampe AUS")
+    async function lampOff() {
+      if (!myCharacteristic) {
+        alert("Bitte zuerst auf 'Verbinden' klicken!");
+        return;
+      }
+      const data = new Uint8Array([0]);
+      await myCharacteristic.writeValue(data);
+      alert("Lampe ausgeschaltet!");
+    }
+  </script>
+</body>
+</html>
